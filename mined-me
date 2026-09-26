@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>마음 숲 정원</title>
+  <!-- 구글 폰트 로드 실패 시에도 형태를 유지하도록 웹 안전 손글씨 폴백 지정 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* 1. 노션 iframe 완벽 호환 CSS 리셋 */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: auto;
+      min-height: 100%;
+      background-color: #0c1520;
+      color: #e8f1ec;
+      font-family: 'Gaegu', -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .font-sans-kr {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* 반응형 레이아웃 래퍼 (노션 가로폭에 따라 100% 유동 조절) */
+    .app-container {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 16px 14px 40px 14px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* 카드 베이스 */
+    .card {
+      background: rgba(18, 34, 46, 0.95);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 20px;
+      padding: 20px 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    /* 버튼 스타일 */
+    .btn-menu {
+      width: 100%;
+      background: linear-gradient(135deg, #142938 0%, #123126 100%);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 16px;
+      padding: 16px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #fff;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+    }
+    .btn-menu:active {
+      transform: scale(0.98);
+      background: #174031;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background-color: #2d6144;
+      color: #ffffff;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+      touch-action: manipulation;
+      transition: background 0.2s ease;
+    }
+    .btn-primary:active {
+      background-color: #3b7a57;
+      transform: scale(0.98);
+    }
+
+    .btn-sub {
+      background-color: #173024;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      padding: 12px 14px;
+      width: 100%;
+      color: #e2f7ea;
+      cursor: pointer;
+      text-align: left;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      touch-action: manipulation;
+    }
+    .btn-sub:active {
+      background-color: #1f4232;
+    }
+
+    /* 헤더 스타일 */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    /* 반짝이는 별 효과 (가벼운 CSS) */
+    .star-badge {
+      display: inline-block;
+      animation: pulseStar 2.5s infinite ease-in-out;
+    }
+    @keyframes pulseStar {
+      0%, 100% { opacity: 0.5; transform: scale(0.95); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    /* 호흡 원 애니메이션 */
+    .breathe-circle {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 4px solid #fde047;
+      background: rgba(16, 185, 129, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      transition: transform 4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .breathe-expand {
+      transform: scale(1.3);
+      transition: transform 4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .breathe-contract {
+      transform: scale(0.85);
+      transition: transform 6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* 호흡 뷰어 박스 */
+    .breathe-box {
+      width: 100%;
+      height: 220px;
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .breathe-box img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 1s ease-in-out;
+    }
+
+    /* 텍스트에어리어 */
+    textarea {
+      width: 100%;
+      background: #0c1520;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 12px;
+      padding: 12px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      resize: vertical;
+    }
+    textarea:focus {
+      border-color: #34d399;
+    }
+
+    /* 슬라이더 */
+    input[type=range] {
+      width: 100%;
+      accent-color: #10b981;
+      height: 6px;
+      border-radius: 4px;
+      background: #0c1520;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- 헤더 -->
+    <header class="header-bar">
+      <div onclick="goToHome()" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 1.8rem;">🌲</span>
+        <div>
+          <h1 style="font-size: 1.6rem; color: #a7f3d0; line-height: 1.1;">
+            마음 숲 정원 <span class="star-badge" style="color: #fde047;">⭐</span>
+          </h1>
+          <p class="font-sans-kr" style="font-size: 0.75rem; color: #6ee7b7; font-weight: 300;">나를 편안히 안아주는 쉼터</p>
+        </div>
+      </div>
+      <div style="font-size: 1.2rem;">🍀</div>
+    </header>
+
+    <!-- [1] 홈 화면 -->
+    <section id="screen-home">
+      <div class="card" style="text-align: center;">
+        <span style="display: inline-block; background: rgba(26, 56, 43, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; color: #a7f3d0; margin-bottom: 12px;">
+          ☘️ 조용한 숲속에서 쉬어가기
+        </span>
+        <h2 style="font-size: 1.8rem; margin-bottom: 8px;">지금 마음에 필요한 것은?</h2>
+        <p class="font-sans-kr" style="font-size: 0.9rem; color: #a7f3d0; line-height: 1.5; font-weight: 300;">
+          거센 파도가 일 때도 숲은 자리를 지킵니다.<br>
+          당신의 속도에 맞춰 한 걸음씩 가볍게 머물러보세요.
+        </p>
+
+        <!-- 핵심 문구 -->
+        <div style="margin-top: 14px; background: rgba(15, 42, 32, 0.9); border: 1px solid rgba(52, 211, 153, 0.4); border-radius: 12px; padding: 12px 10px; color: #ecfdf5; font-size: 1.05rem; font-weight: bold; line-height: 1.4;">
+          <span style="color: #fde047;">⭐</span>
+          "'왜' 보다는 '어떻게'를 생각하기. 나는 끔찍이보다 부지런하다!"
+          <span style="color: #fde047;">⭐</span>
+        </div>
+      </div>
+
+      <!-- 3가지 선택 메뉴 -->
+      <div class="font-sans-kr">
+        <div class="btn-menu" onclick="startBreathing()">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 1.8rem;">🌙</span>
+            <div>
+              <div style="font-family: 'Gaegu'; font-size: 1.4rem; font-weight: bold; color: #e2f7ea;">1. 호흡하기</div>
+              <div style="font-size: 0.8rem; color: #6ee7b7;">밤하늘과 호수 풍경 속 4·6 호흡</div>
+            </div>
+          </div>
+          <span style="color: #34d399; font-size: 1.2rem;">➔</span>
+        </div>
+
+        <div class="btn-menu" onclick="startGrounding()">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 1.8rem;">🌿</span>
+            <div>
+              <div style="font-family: 'Gaegu'; font-size: 1.4rem; font-weight: bold; color: #e2f7ea;">2. 그라운딩 (5-4-3-2-1)</div>
+              <div style="font-size: 0.8rem; color: #6ee7b7;">오감을 깨워 '지금, 여기'에 닻 내리기</div>
+            </div>
+          </div>
+          <span style="color: #34d399; font-size: 1.2rem;">➔</span>
+        </div>
+
+        <div class="btn-menu" onclick="startShadowEscape()">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 1.8rem;">🧭</span>
+            <div>
+              <div style="font-family: 'Gaegu'; font-size: 1.4rem; font-weight: bold; color: #e2f7ea;">3. 그림자 탈출 매뉴얼</div>
+              <div style="font-size: 0.8rem; color: #6ee7b7;">우울·불안·무기력 원인별 심리 솔루션</div>
+            </div>
+          </div>
+          <span style="color: #34d399; font-size: 1.2rem;">➔</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- [2] 호흡하기 화면 -->
+    <section id="screen-breathing" class="hidden">
+      <!-- 준비 화면 -->
+      <div id="breathe-prep-box" class="card" style="text-align: center;">
+        <span style="font-size: 3rem;">🧘‍♀️</span>
+        <h2 style="font-size: 1.8rem; margin: 8px 0;">호흡을 위한 준비</h2>
+        <div class="font-sans-kr" style="background: #173024; padding: 14px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.95rem; line-height: 1.5; color: #d1fae5; margin: 12px 0;">
+          몸을 편안하게 이완하고 눈을 지그시 감습니다.<br>
+          어깨와 턱의 힘을 툭 빼주세요.
+        </div>
+        <p class="font-sans-kr" style="font-size: 0.8rem; color: #6ee7b7; margin-bottom: 12px;">
+          4초간 밤하늘 들이쉬기 · 6초간 호수 내쉬기 (총 10회)
+        </p>
+        <button class="btn-primary" onclick="runBreatheCycle()">호흡 시작하기 🌲</button>
+      </div>
+
+      <!-- 호흡 루프 화면 -->
+      <div id="breathe-active-box" class="card hidden" style="text-align: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span class="font-sans-kr" style="font-size: 0.8rem; background: rgba(6, 78, 59, 0.6); padding: 3px 10px; border-radius: 12px; color: #a7f3d0;">
+            반복: <strong id="breathe-cycle-count" style="color: #fff;">1</strong> / 10회
+          </span>
+          <span class="font-sans-kr" onclick="stopBreathing(); goToHome();" style="font-size: 0.8rem; color: #9ca3af; text-decoration: underline; cursor: pointer;">그만하기</span>
+        </div>
+
+        <div class="breathe-box">
+          <img id="img-inhale" src="https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=800&q=80" style="opacity: 1;" alt="밤하늘">
+          <img id="img-exhale" src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80" style="opacity: 0;" alt="호수숲">
+          <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.35);"></div>
+
+          <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+            <div id="breathe-circle" class="breathe-circle">
+              <span id="breathe-phase-text" style="font-size: 1.4rem; font-weight: bold; color: #fff;">들이쉬기</span>
+              <span id="breathe-timer" style="font-size: 2.2rem; font-weight: bold; color: #fde047;">4</span>
+            </div>
+          </div>
+        </div>
+
+        <p id="breathe-guide-comment" class="font-sans-kr" style="font-size: 0.95rem; color: #a7f3d0;">
+          밤하늘의 맑은 별빛 기운을 천천히 들이마십니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- [3] 그라운딩 화면 -->
+    <section id="screen-grounding" class="hidden">
+      <div class="card font-sans-kr">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 10px; margin-bottom: 14px;">
+          <h2 style="font-family: 'Gaegu'; font-size: 1.6rem; color: #fff;">🌿 감각 그라운딩</h2>
+          <span id="grounding-step-badge" style="font-size: 0.75rem; background: #064e3b; padding: 2px 8px; border-radius: 10px; color: #6ee7b7;">1단계 / 5단계</span>
+        </div>
+
+        <div id="grounding-content-area"></div>
+
+        <div style="display: flex; justify-content: space-between; gap: 8px; margin-top: 16px;">
+          <button id="grounding-prev-btn" onclick="prevGroundingStep()" style="background: transparent; border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; border-radius: 10px; padding: 8px 14px; cursor: pointer;">이전</button>
+          <button id="grounding-next-btn" onclick="nextGroundingStep()" style="background: #2d6144; border: none; color: #fff; border-radius: 10px; padding: 10px 18px; font-weight: bold; cursor: pointer;">다음 감각 ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- [4] 그림자 탈출 매뉴얼 화면 -->
+    <section id="screen-shadow" class="hidden">
+      <div id="shadow-step-1" class="card font-sans-kr">
+        <div style="text-align: center; margin-bottom: 16px;">
+          <span style="font-size: 2.2rem;">🧭</span>
+          <h2 style="font-family: 'Gaegu'; font-size: 1.8rem; margin: 4px 0;">어떤 그림자가 머물고 있나요?</h2>
+          <p style="font-size: 0.85rem; color: #6ee7b7;">내면의 신호에 귀를 기울여주세요.</p>
+        </div>
+
+        <button class="btn-sub" onclick="selectEmotion('depression')">🌧️ 우울한가요?</button>
+        <button class="btn-sub" onclick="selectEmotion('anxiety')">⚡ 불안한가요?</button>
+        <button class="btn-sub" onclick="selectEmotion('lethargy')">🥀 우울하고 불안한데 무기력까지?</button>
+        <button class="btn-sub" onclick="selectEmotion('denial')">🌫️ 내가 내 감정을 부정하고 있음</button>
+      </div>
+
+      <div id="shadow-step-2" class="hidden font-sans-kr">
+        <div onclick="backToEmotionSelect()" style="color: #6ee7b7; font-size: 0.85rem; margin-bottom: 10px; cursor: pointer; display: inline-block;">
+          ⬅ 감정 다시 선택하기
+        </div>
+        <div id="shadow-detail-content"></div>
+      </div>
+    </section>
+
+    <!-- [5] 점수 체크 & 숲의 우체통 -->
+    <section id="screen-score" class="hidden">
+      <div class="card font-sans-kr" style="text-align: center;">
+        <span style="font-size: 2.5rem;">☘️</span>
+        <h2 style="font-family: 'Gaegu'; font-size: 1.8rem; margin: 6px 0;">마음 돌봄 세션을 마쳤습니다</h2>
+        <p style="font-size: 0.85rem; color: #6ee7b7; margin-bottom: 16px;">지금 불안이나 우울의 정도는 몇 점인가요?</p>
+
+        <!-- 슬라이더 -->
+        <div style="background: #14281f; padding: 14px; border-radius: 14px; border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 0.75rem; color: #a7f3d0;">편안함 (0점)</span>
+            <span id="score-display" style="font-family: 'Gaegu'; font-size: 1.8rem; font-weight: bold; color: #fde047;">5점</span>
+            <span style="font-size: 0.75rem; color: #a7f3d0;">버거움 (10점)</span>
+          </div>
+          <input id="score-slider" type="range" min="0" max="10" value="5" oninput="updateScoreVal(this.value)">
+        </div>
+
+        <!-- 숲의 우체통 -->
+        <div style="background: linear-gradient(to bottom, #183a2d, #12281e); border: 1px solid rgba(52, 211, 153, 0.4); border-radius: 16px; padding: 16px; text-align: left; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(16, 185, 129, 0.3); padding-bottom: 8px; margin-bottom: 10px;">
+            <span style="font-weight: bold; color: #a7f3d0; font-size: 0.95rem;">📬 숲의 우체통에서 온 편지</span>
+            <span onclick="drawRandomQuote()" style="font-size: 0.75rem; background: #064e3b; padding: 3px 8px; border-radius: 6px; cursor: pointer; color: #d1fae5;">다른 편지 ↺</span>
+          </div>
+          <div id="postbox-quote-text" style="font-size: 0.9rem; line-height: 1.6; color: #f0fdf4; margin-bottom: 8px; white-space: pre-line;"></div>
+          <div id="postbox-quote-source" style="font-size: 0.75rem; text-align: right; color: #6ee7b7;"></div>
+        </div>
+
+        <button class="btn-primary" onclick="goToHome()">정원 입구로 돌아가기 🌲</button>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // 1. 화면 전환 함수
+    const screens = ['screen-home', 'screen-breathing', 'screen-grounding', 'screen-shadow', 'screen-score'];
+    function switchScreen(targetScreenId) {
+      screens.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+      const target = document.getElementById(targetScreenId);
+      if (target) target.classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+
+    function goToHome() {
+      stopBreathing();
+      switchScreen('screen-home');
+    }
+
+    function openScoreCheck() {
+      stopBreathing();
+      drawRandomQuote();
+      switchScreen('screen-score');
+    }
+
+    // 2. 노션 임베드 전용 링크 핸들러 (iframe 샌드박스 완벽 대응)
+    const NOTION_URL = "https://www.notion.so/3b8ad9816a198011805ff67aa4e8857b";
+
+    function openNotionLink(url) {
+      try {
+        // iframe 내부에서 팝업이 차단되지 않도록 top 수준 이동 또는 새 탭 열기
+        window.open(url, '_blank', 'noopener,noreferrer');
+      } catch (e) {
+        window.location.href = url;
+      }
+    }
+
+    function copyNotionLink(url) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(() => {
+          alert("노션 링크가 복사되었습니다! 새 브라우저 창이나 노션 앱에 붙여넣어 주세요.");
+        }).catch(() => fallbackCopy(url));
+      } else {
+        fallbackCopy(url);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const input = document.createElement("input");
+      input.value = text;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+      alert("노션 링크가 복사되었습니다! 새 브라우저 창에 붙여넣어 주세요.");
+    }
+
+    // 3. 호흡하기 모듈
+    let breatheInterval = null;
+    let breatheCycle = 1;
+    let isBreathing = false;
+
+    function startBreathing() {
+      switchScreen('screen-breathing');
+      document.getElementById('breathe-prep-box').classList.remove('hidden');
+      document.getElementById('breathe-active-box').classList.add('hidden');
+      breatheCycle = 1;
+    }
+
+    function runBreatheCycle() {
+      document.getElementById('breathe-prep-box').classList.add('hidden');
+      document.getElementById('breathe-active-box').classList.remove('hidden');
+      isBreathing = true;
+      breatheCycle = 1;
+      executeSingleCycle();
+    }
+
+    function executeSingleCycle() {
+      if (!isBreathing) return;
+      if (breatheCycle > 10) {
+        stopBreathing();
+        openScoreCheck();
+        return;
+      }
+
+      document.getElementById('breathe-cycle-count').innerText = breatheCycle;
+      const circle = document.getElementById('breathe-circle');
+      const phaseText = document.getElementById('breathe-phase-text');
+      const timerText = document.getElementById('breathe-timer');
+      const guideText = document.getElementById('breathe-guide-comment');
+      const imgInhale = document.getElementById('img-inhale');
+      const imgExhale = document.getElementById('img-exhale');
+
+      // 4초 들이쉬기
+      imgInhale.style.opacity = '1';
+      imgExhale.style.opacity = '0';
+      circle.className = 'breathe-circle breathe-expand';
+      phaseText.innerText = "들이쉬기";
+      guideText.innerText = "밤하늘의 맑은 별빛 기운을 들이마십니다.";
+
+      let timeLeft = 4;
+      timerText.innerText = timeLeft;
+
+      breatheInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft > 0) {
+          timerText.innerText = timeLeft;
+        } else {
+          clearInterval(breatheInterval);
+          if (!isBreathing) return;
+
+          // 6초 내쉬기
+          imgInhale.style.opacity = '0';
+          imgExhale.style.opacity = '1';
+          circle.className = 'breathe-circle breathe-contract';
+          phaseText.innerText = "내쉬기";
+          guideText.innerText = "호수 물결에 무거운 마음을 천천히 내보냅니다.";
+
+          let exhaleTime = 6;
+          timerText.innerText = exhaleTime;
+
+          breatheInterval = setInterval(() => {
+            exhaleTime--;
+            if (exhaleTime > 0) {
+              timerText.innerText = exhaleTime;
+            } else {
+              clearInterval(breatheInterval);
+              if (isBreathing) {
+                breatheCycle++;
+                executeSingleCycle();
+              }
+            }
+          }, 1000);
+        }
+      }, 1000);
+    }
+
+    function stopBreathing() {
+      isBreathing = false;
+      if (breatheInterval) clearInterval(breatheInterval);
+    }
+
+    // 4. 그라운딩 모듈
+    const groundingSteps = [
+      { step: 5, title: "보이는 것 5가지 찾기", guide: "지금 보이는 것 5가지를 찾아 색과 모양을 적어주세요.", ph: "예: 갈색 나무 책상 모서리, 노란 연필...", icon: "👁️" },
+      { step: 4, title: "만져지는 것 4가지 찾기", guide: "손끝에 닿는 것 4가지의 질감을 느껴보세요.", ph: "예: 옷감의 부드러움, 스마트폰 유리의 시원함...", icon: "✋" },
+      { step: 3, title: "들리는 소리 3가지 찾기", guide: "들리는 소리 3가지를 찾아보세요. 멀리 있는 것도 좋습니다.", ph: "예: 시계 초침 소리, 창밖 바람 소리...", icon: "👂" },
+      { step: 2, title: "맡을 수 있는 냄새 2가지 찾기", guide: "맡을 수 있는 냄새 2가지나 좋아하는 향을 떠올립니다.", ph: "예: 종이 냄새, 샌달우드 비누 향...", icon: "👃" },
+      { step: 1, title: "느껴지는 맛 1가지 찾기", guide: "입안의 맛이나 물 한 모금의 감각에 집중해 보세요.", ph: "예: 물의 개운함, 차의 쌉싸름함...", icon: "👅" }
+    ];
+    let currentGroundingIdx = 0;
+    const groundingAnswers = ["", "", "", "", ""];
+
+    function startGrounding() {
+      currentGroundingIdx = 0;
+      switchScreen('screen-grounding');
+      renderGroundingStep();
+    }
+
+    function renderGroundingStep() {
+      const stepData = groundingSteps[currentGroundingIdx];
+      document.getElementById('grounding-step-badge').innerText = `${currentGroundingIdx + 1}단계 / 5단계`;
+      const container = document.getElementById('grounding-content-area');
+      container.innerHTML = `
+        <div style="margin-bottom: 12px;">
+          <div style="font-family: 'Gaegu'; font-size: 1.4rem; font-weight: bold; color: #a7f3d0; margin-bottom: 4px;">
+            ${stepData.icon} ${stepData.title}
+          </div>
+          <p style="font-size: 0.9rem; color: #d1fae5; margin-bottom: 8px;">${stepData.guide}</p>
+          <textarea id="grounding-input" rows="3" placeholder="${stepData.ph}">${groundingAnswers[currentGroundingIdx] || ""}</textarea>
+        </div>
+      `;
+      document.getElementById('grounding-prev-btn').style.visibility = (currentGroundingIdx === 0) ? 'hidden' : 'visible';
+      document.getElementById('grounding-next-btn').innerText = (currentGroundingIdx === 4) ? "완료하고 점수 체크 ➔" : "다음 감각 ➔";
+    }
+
+    function prevGroundingStep() {
+      const input = document.getElementById('grounding-input');
+      if (input) groundingAnswers[currentGroundingIdx] = input.value;
+      if (currentGroundingIdx > 0) {
+        currentGroundingIdx--;
+        renderGroundingStep();
+      }
+    }
+
+    function nextGroundingStep() {
+      const input = document.getElementById('grounding-input');
+      if (input) groundingAnswers[currentGroundingIdx] = input.value;
+      if (currentGroundingIdx < 4) {
+        currentGroundingIdx++;
+        renderGroundingStep();
+      } else {
+        openScoreCheck();
+      }
+    }
+
+    // 5. 그림자 탈출 매뉴얼
+    function startShadowEscape() {
+      switchScreen('screen-shadow');
+      document.getElementById('shadow-step-1').classList.remove('hidden');
+      document.getElementById('shadow-step-2').classList.add('hidden');
+    }
+
+    function backToEmotionSelect() {
+      document.getElementById('shadow-step-1').classList.remove('hidden');
+      document.getElementById('shadow-step-2').classList.add('hidden');
+    }
+
+    function selectEmotion(type) {
+      document.getElementById('shadow-step-1').classList.add('hidden');
+      document.getElementById('shadow-step-2').classList.remove('hidden');
+      const box = document.getElementById('shadow-detail-content');
+
+      if (type === 'depression') {
+        box.innerHTML = `
+          <div class="card">
+            <h3 style="font-family: 'Gaegu'; font-size: 1.6rem; margin-bottom: 12px;">🌧️ 우울 - 마음의 이유 들여다보기</h3>
+            <button class="btn-sub" onclick="showDepDetail(1)">(1) 불안해서 우울하다</button>
+            <button class="btn-sub" onclick="showDepDetail(2)">(2) 삶의 이유를 몰라서 우울하다</button>
+            <button class="btn-sub" onclick="showDepDetail(3)">(3) 완벽하지 못한 내가 너무 싫어서 우울하다</button>
+            <div id="sub-result"></div>
+          </div>
+        `;
+      } else if (type === 'anxiety') {
+        box.innerHTML = `
+          <div class="card">
+            <h3 style="font-family: 'Gaegu'; font-size: 1.6rem; margin-bottom: 12px;">⚡ 불안 - 마음 다독이기</h3>
+            <button class="btn-sub" onclick="showAnxDetail(1)">(1) 실수한 일을 반추하고 있다</button>
+            <button class="btn-sub" onclick="showAnxDetail(2)">(2) “나는 무능력한 사람이다” 버튼이 눌림</button>
+            <button class="btn-sub" onclick="showAnxDetail(3)">(3) 일어나지 않은 일을 걱정하고 있다</button>
+            <button class="btn-sub" onclick="showAnxDetail(4)">(4) 사람들이 나를 싫어할까 불안하다</button>
+            <button class="btn-sub" onclick="showAnxDetail(5)">(5) 남들보다 뒤처졌다고 생각한다</button>
+            <div id="sub-result"></div>
+          </div>
+        `;
+      } else if (type === 'lethargy') {
+        box.innerHTML = `
+          <div class="card">
+            <h3 style="font-family: 'Gaegu'; font-size: 1.6rem; margin-bottom: 8px;">🥀 우울, 불안에 무기력까지 겹쳤을 때</h3>
+            <p style="font-size: 0.85rem; color: #a7f3d0; margin-bottom: 12px;">억지로 힘내지 않아도 됩니다. 가벼운 회복 루틴을 실천해보세요.</p>
+            <div style="background: #14281f; padding: 12px; border-radius: 12px; margin-bottom: 12px; font-size: 0.85rem; line-height: 1.6;">
+              <strong style="color: #6ee7b7;">내 몸의 신호:</strong><br>
+              • 심장에 통증이나 두근거림이 있다<br>
+              • 온종일 잠만 자고 싶다<br>
+              • 할 일이 있는데 누워만 있게 된다
+            </div>
+            <button class="btn-sub" onclick="startBreathing()">🌬️ (1) 호흡하기 메뉴로 이동</button>
+            <div class="btn-sub">🪵 (2) 좋아하는 향(샌달우드)으로 샤워하기</div>
+            <div class="btn-sub">☕ (3) 좋아하는 커피를 내려 일단 앉아 계획 세우기</div>
+            <button class="btn-primary" onclick="openScoreCheck()">점수 체크하러 가기 ➔</button>
+          </div>
+        `;
+      } else if (type === 'denial') {
+        box.innerHTML = `
+          <div class="card">
+            <h3 style="font-family: 'Gaegu'; font-size: 1.6rem; margin-bottom: 8px;">🌫️ 감정을 부정하고 있을 때</h3>
+            <p style="font-size: 0.85rem; color: #a7f3d0; margin-bottom: 12px;">감정에 다정하게 이름을 붙여주세요.</p>
+            <div style="background: #14281f; padding: 14px; border-radius: 12px; font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px;">
+              “오늘(지금)은 <strong>[ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</strong> 같은 감정을 느끼고 있구나.”<br>
+              “아, 나는 <strong>[ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</strong>하고 싶어서 <strong>[ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</strong> 같이 느끼는구나.”
+            </div>
+            <button class="btn-primary" onclick="openScoreCheck()">점수 체크하러 가기 ➔</button>
+          </div>
+        `;
+      }
+    }
+
+    function showDepDetail(idx) {
+      const res = document.getElementById('sub-result');
+      if (idx === 1) {
+        res.innerHTML = `
+          <div style="background: #14281f; padding: 14px; border-radius: 12px; margin-top: 10px; font-size: 0.9rem; line-height: 1.6;">
+            <strong style="color: #6ee7b7;">🌱 2회차 삶의 태도</strong><br>
+            “음 내가 또 이전 패턴대로 하고 있었구나, 지금부터 다르게 살아야지라고 생각하고 올바른 행동을 다시 연습하고 실천하면 된다.”
+            <div style="text-align: right; font-size: 0.75rem; color: #a7f3d0; margin-top: 6px;">— 『잠 못 드는 당신을 위한 밤의 심리학』</div>
+            <button class="btn-primary" onclick="openScoreCheck()">점수 체크하러 가기 ➔</button>
+          </div>
+        `;
+      } else if (idx === 2) {
+        res.innerHTML = `
+          <div style="background: #14281f; padding: 14px; border-radius: 12px; margin-top: 10px; font-size: 0.9rem; line-height: 1.6;">
+            <strong style="color: #6ee7b7;">🌸 좋아하는 일 한 가지 하기</strong><br>
+            독서, 노래 들으며 러닝, 수영, 샌달우드 향으로 샤워, 드라마 보며 뜨개질하기 등 소박한 기쁨을 선물하세요.
+            <button class="btn-primary" onclick="openScoreCheck()">점수 체크하러 가기 ➔</button>
+          </div>
+        `;
+      } else if (idx === 3) {
+        renderNotionActionBox(res);
+      }
+    }
+
+    function showAnxDetail(idx) {
+      const res = document.getElementById('sub-result');
+      if (idx === 1) {
+        res.innerHTML = `
+          <div style="background: #14281f; padding: 14px; border-radius: 12px; margin-top: 10px; font-size: 0.85rem; line-height: 1.6;">
+            <strong style="color: #fde047;">⚠️ 사후 처리의 악순환 알아차리기</strong><br>
+            사후 처리는 특정한 사회적 경험이 떠오르며 말이나 행동이 해를 끼쳤을까 의심하며 시작됩니다. 이를 해소하려 기억을 더듬을수록 불안과 걱정이 더 커집니다.<br><br>
+            <strong style="color: #6ee7b7;">💡 ACTION 모델:</strong><br>
+            • Assessment: 지금 하려는 반추가 회피인가, 가치 기반 행동인가?<br>
+            • Choose: 나에게 도움 되는 행동 선택하기<br>
+            • Try: 일단 시도해 보기<br>
+            • Integrate: 신호를 정해 습관화하기<br>
+            • Observation: 평가 없이 그저 관찰하기<br>
+            • Never give up: 포기하지 말고 지속하기
+            <button class="btn-primary" onclick="openScoreCheck()">점수 체크하러 가기 ➔</button>
+          </div>
+        `;
+      } else if (idx === 2) {
+        renderNotionActionBox(res);
+      } else if (idx === 3) {
+        res.innerHTML = `
+          <div style="background: #14281f; padding: 14px; border-radius: 12px; margin-top: 10px; font-size: 0.85rem; line-height: 1.6;">
+            <strong style="color: #f87171;">🛑 불안해서 확인하는 물음 중단!</strong><br>
+            과도한 책임감 때문은 아닌지 살피고, 통제 가능한 것에만 집중해 봅니다.
+            <button class="btn-primary" onclick="openScoreCheck()">점수 체크하러 가기 ➔</button>
+          </div>
+        `;
+      } else if (idx === 4) {
+        res.innerHTML = `
+          <div style="background: #14281f; padding: 14px; border-radius: 12px; margin-top: 10px; font-size: 0.85rem; line-height: 1.6;">
+            “내가 할 수 있는 일은 ‘내가 좋아하는 사람에게 정성을 다해 내 마음을 보여주는 것’까지다. 그 이상의 것은 내 일이 아니다.”<br>
+            <em>“역시 내 생각만큼 나쁜 일은 잘 일어나지 않아.”</em>
+            <button class="btn-primary" onclick="openScoreCheck()">점수 체크하러 가기 ➔</button>
+          </div>
+        `;
+      } else if (idx === 5) {
+        res.innerHTML = `
+          <div style="background: #14281f; padding: 14px; border-radius: 12px; margin-top: 10px; font-size: 0.85rem; line-height: 1.6;">
+            ① 나는 [ &nbsp;&nbsp;&nbsp;&nbsp; ]을 생각하느라 너무 많은 시간을 보냈다.<br>
+            ② 나는 [ &nbsp;&nbsp;&nbsp;&nbsp; ]을 하는 데 충분한 시간을 보내지 않았다.<br>
+            ③ 다시 시작한다면 내가 하고 싶은 것은 [ &nbsp;&nbsp;&nbsp;&nbsp; ]이다.
+            <button class="btn-primary" onclick="openScoreCheck()">점수 체크하러 가기 ➔</button>
+          </div>
+        `;
+      }
+    }
+
+    function renderNotionActionBox(targetEl) {
+      targetEl.innerHTML = `
+        <div style="background: #14281f; padding: 14px; border-radius: 12px; margin-top: 10px; text-align: center;">
+          <p style="font-size: 0.85rem; color: #d1fae5; margin-bottom: 10px; line-height: 1.5;">
+            사건 ➔ 신체반응 ➔ 자동적 사고 ➔ 대안적 신념을 객관적으로 기록합니다.
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button type="button" onclick="openNotionLink('${NOTION_URL}')" style="background: #2d6144; border: none; padding: 12px; border-radius: 10px; color: #fff; font-weight: bold; cursor: pointer;">
+              📓 노션에서 사고기록지 열기 (새 창)
+            </button>
+            <button type="button" onclick="copyNotionLink('${NOTION_URL}')" style="background: #0f1f18; border: 1px solid rgba(16,185,129,0.3); padding: 10px; border-radius: 10px; color: #6ee7b7; font-size: 0.8rem; cursor: pointer;">
+              📋 링크 복사하기
+            </button>
+          </div>
+          <button class="btn-primary" onclick="openScoreCheck()">점수 체크하러 가기 ➔</button>
+        </div>
+      `;
+    }
+
+    // 6. 감정 점수 및 숲의 우체통 (11개 문장)
+    const forestQuotes = [
+      { text: "내 인생에서 지금 이 순간이 제일 어린 시간이니, 한번 다르게 살아보겠다는 마음가짐 말이다. 엄청 거창한 것이 아니어도 된다. (중략) ‘2회차 삶이 시작된다면 이렇게 할 텐데’를, 지금 여기서 하는 것이다.", source: "— 이번 생은 망한 것 같아? 2회차 인생! 『잠 못 드는 당신을 위한 밤의 심리학』" },
+      { text: "마음먹은 것을 가능한 꾸준히, 그냥 하는 것이 중요하다.\n너무나 기대했던 일들이 눈앞에서 좌절되었다고 너무 오래는 슬퍼 마세요.", source: "— 실패로 힘들어하는 이에게" },
+      { text: "‘이렇게 액땜한 거지!’ 하고 호기롭게 큰소리 한번 치고는 다시 행동을 개시하세요. 10년 후, 후회하지 않을 행동을 하세요.", source: "— 실패로 힘들어하는 이에게" },
+      { text: "부정적 감정을 마음 안에서 제거하는 것은 불가능한 목표입니다. 그래서 부정적인 그 무엇도 느끼지 않으려 하는 것을 ‘죽은 사람의 목표’라고도 말합니다. 죽은 이가 산 자보다 더 잘할 수 있는 일은 아무것도 느끼지 않는 것이니까요. 살아있는 사람들, 그 중에도 지혜로운 사람들은 마침내 부정적인 감정을 마음 안에 모두 품어버립니다. 살아있는 내가 끌어안아 버리면 안아지는, 내 측은한 나의 기억과 감정들입니다.", source: "— 마음 안의 지옥을 다루는 법" },
+      { text: "사라지지 않을 슬픔을 다루는 자신만의 지혜를 찾으셨다면 언젠가는 그 지혜를 저 혹은 다른 누군가에게 나누어주실 수도 있겠지요. 저도 이곳에 팁을 하나 두고 갑니다. 저는 제 마음 안 지옥에게 어른이 되어 주기로 결심했습니다. 어린 시절부터 품고 있었던 좋은 어른의 모습을 떠올려 내 안의 상실감과 슬픔을 대하고자 했습니다.", source: "— 마음 안의 지옥을 다루는 법" },
+      { text: "사실 사람이 매일 하는 일은 비슷합니다. 우리는 자신에게 매일 하는 비판을 계속 반복해서 하고 있는지도요. 그동안 마음속에 사는 작은 아이는 얼마나 용서가 고팠을까요? 그 마음을 다정히 알아주세요.", source: "— 『우울은 초록의 마음』" },
+      { text: "어른이 된 우리는 자신에게 \"나는 이런 사람이 되어야 한다.\"라고 너무 자주 말하고 있는지도 모릅니다. 당신은 어떤 존재가 되거나 이뤄 내지 않아도 좋습니다. 그 자체로 충분합니다. 비록 수많은 실패를 했어도 그것이 사랑받지 못할 이유는 되지 않습니다.", source: "— 『우울은 초록의 마음』" },
+      { text: "부정적이었던 것들을 성취의 기억으로 긍정적으로 재해석하다 보면, 긍정 회로가 돌기 시작하여 사고의 흐름이 바뀔 것이고 그 흐름이 앞으로의 미래를 더욱더 발전적인 방향으로 이끌어 줄 것입니다. 그러니 '시간 관리'라는 것은 현재와 미래만 조율하는 것 아니라 내 인생 전체를 좌지우지하는 것일 수밖에요.", source: "— 『마일리지 아워』" },
+      { text: "그럴 때마다 나는 내가 얼마나 스스로 행복해질 수 있는 사람인지 일깨워주어야 한다. 그것은 내가 나로 살아가는 동안 마땅히 해야 할 의무이자 최소한의 도리인 것이다. 그래서 그 비장의 무기를 찾기 위해 내 삶을 즐겁고 행복하게 만드는 것들에 대해 마구잡이로 떠올려 본다.", source: "— 『멋있게 좀 살자 우리』" },
+      { text: "좋아하는 것에 이름을 지어주는 일은 내 시간을 선물하겠다는 의미라고 생각한다. 이름을 부를 때마다 함께 하는 시간. 멀리서도 그 이름을 떠올리는 순간에 함께 있는 것 같다.", source: "— 『조금 더 사랑하는 쪽으로』" },
+      { text: "만약 그때의 저를 만날 수 있다면 이렇게 얘기해 주고 싶어요.\n지금도 충분히 잘하고 있다고, 너는 네가 생각하는 것보다 생각이 많고 경험을 통해 배우며 잘 성장하고 있다고 말이에요. 채찍을 내려놓고 네가 너의 가장 든든한 지원군이 되면 어떤 일이 생겨도 다시 일어날 수 있을 거라고 토닥여 주고 싶어요.", source: "— 『나는 나를 돌봅니다』" }
+    ];
+
+    function updateScoreVal(val) {
+      document.getElementById('score-display').innerText = `${val}점`;
+    }
+
+    function drawRandomQuote() {
+      const randIdx = Math.floor(Math.random() * forestQuotes.length);
+      const q = forestQuotes[randIdx];
+      document.getElementById('postbox-quote-text').innerText = q.text;
+      document.getElementById('postbox-quote-source').innerText = q.source;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      drawRandomQuote();
+    });
+  </script>
+</body>
+</html>
